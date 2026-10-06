@@ -1,0 +1,29 @@
+version: "1.0"
+name: "deploy-app-example"
+
+stages:
+  - name: lint_and_format
+    commands:
+      - cargo fmt --check
+      - cargo clippy -- -D warnings
+
+  - name: test
+    commands:
+      - cargo test --all-targets
+
+  - name: build
+    commands:
+      - cargo build --release
+      # O si usas Docker:
+      # - docker build -t mi-app:latest .
+
+  - name: release_preparation
+    commands:
+      # Generar artefactos, binarios compilados o imágenes
+      - tar -czvf app-release.tar.gz ./target/release/mi-app
+
+  - name: deploy
+    commands:
+      # Subir imagen, copiar archivos por SSH o ejecutar script de despliegue
+      - scp app-release.tar.gz usuario@servidor:/var/www/app/
+      - ssh usuario@servidor "cd /var/www/app/ && tar -xzvf app-release.tar.gz && systemctl restart mi-servicio"

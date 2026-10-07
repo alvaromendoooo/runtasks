@@ -16,6 +16,8 @@ stages:
       - cargo build --release
       # O si usas Docker:
       # - docker build -t mi-app:latest .
+    depends_on:
+      - test
 
   - name: release_preparation
     commands:

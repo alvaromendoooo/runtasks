@@ -1,18 +1,15 @@
-pub mod config;
-pub mod parser;
+use runtasks::cli::Command;
+use std::process::ExitCode;
 
-use config::PipelineConfig;
-use std::path::Path;
+fn main() -> ExitCode {
+    // `skip(1)` drops the program name.
+    let result = Command::parse(std::env::args().skip(1)).and_then(runtasks::run);
 
-fn main() {
-    let config_path = Path::new("../deploy_example.yml");
-    let mut config: PipelineConfig = PipelineConfig::default();
-
-    if let Some(path) = config_path.to_str() {
-        config = PipelineConfig::read_content(path);
-    } else {
-        println!("Error stringifying file_path");
+    match result {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => {
+            eprintln!("error: {e}");
+            ExitCode::FAILURE // non-zero exit code so CI/scripts notice
+        }
     }
-
-    println!("Successfully loaded pipeline");
 }
